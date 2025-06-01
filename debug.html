@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Chúc Mừng Ngày 1/6</title>
+    <style>
+        body { margin: 0; background: #000; color: white; font-family: Arial; }
+        #error { padding: 20px; }
+    </style>
+</head>
+<body>
+    <div id="error"></div>
+
+    <script>
+        // Kiểm tra thư viện
+        function checkLibrary(url, name) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = url;
+                script.onload = () => {
+                    document.getElementById('error').innerHTML += `<p style="color: green">✓ Đã tải thành công: ${name}</p>`;
+                    resolve(true);
+                };
+                script.onerror = () => {
+                    document.getElementById('error').innerHTML += `<p style="color: red">✗ Lỗi khi tải: ${name}</p>`;
+                    resolve(false);
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // Kiểm tra tải hình ảnh
+        function checkImage(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    document.getElementById('error').innerHTML += `<p style="color: green">✓ Hình ảnh tải thành công: ${url}</p>`;
+                    resolve(true);
+                };
+                img.onerror = () => {
+                    document.getElementById('error').innerHTML += `<p style="color: red">✗ Lỗi khi tải hình ảnh: ${url}</p>`;
+                    resolve(false);
+                };
+                img.src = url;
+            });
+        }
+
+        // Kiểm tra tất cả các thư viện và hình ảnh
+        async function runTests() {
+            document.getElementById('error').innerHTML = "<h2>Đang kiểm tra các thư viện và tài nguyên...</h2>";
+            
+            // Kiểm tra các thư viện
+            await checkLibrary("https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js", "Three.js core");
+            await checkLibrary("https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js", "OrbitControls");
+            await checkLibrary("https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/EffectComposer.js", "EffectComposer");
+            await checkLibrary("https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/RenderPass.js", "RenderPass");
+            await checkLibrary("https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/ShaderPass.js", "ShaderPass");
+            await checkLibrary("https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/CopyShader.js", "CopyShader");
+            await checkLibrary("https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/UnrealBloomPass.js", "UnrealBloomPass");
+            await checkLibrary("https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/LuminosityHighPassShader.js", "LuminosityHighPassShader");
+            
+            // Kiểm tra hình ảnh
+            await checkImage("https://picsum.photos/300/400");
+            await checkImage("https://picsum.photos/400/300");
+            await checkImage("https://picsum.photos/300/300");
+            
+            // Kiểm tra liệu có thể tạo scene Three.js
+            try {
+                if (typeof THREE !== 'undefined') {
+                    const scene = new THREE.Scene();
+                    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                    const renderer = new THREE.WebGLRenderer();
+                    document.getElementById('error').innerHTML += `<p style="color: green">✓ Khởi tạo Three.js thành công</p>`;
+                    
+                    // Kiểm tra các thành phần khác
+                    if (typeof THREE.EffectComposer !== 'undefined') {
+                        document.getElementById('error').innerHTML += `<p style="color: green">✓ EffectComposer đã sẵn sàng</p>`;
+                    } else {
+                        document.getElementById('error').innerHTML += `<p style="color: red">✗ EffectComposer không khả dụng</p>`;
+                    }
+                    
+                    if (typeof THREE.UnrealBloomPass !== 'undefined') {
+                        document.getElementById('error').innerHTML += `<p style="color: green">✓ UnrealBloomPass đã sẵn sàng</p>`;
+                    } else {
+                        document.getElementById('error').innerHTML += `<p style="color: red">✗ UnrealBloomPass không khả dụng</p>`;
+                    }
+                } else {
+                    document.getElementById('error').innerHTML += `<p style="color: red">✗ THREE không được định nghĩa</p>`;
+                }
+            } catch(e) {
+                document.getElementById('error').innerHTML += `<p style="color: red">✗ Lỗi khởi tạo Three.js: ${e.message}</p>`;
+            }
+            
+            document.getElementById('error').innerHTML += "<h3>Kiểm tra hoàn tất</h3>";
+            document.getElementById('error').innerHTML += "<p>Hãy mở console (F12) để xem thêm chi tiết về lỗi</p>";
+        }
+        
+        // Chạy kiểm tra
+        runTests();
+    </script>
+</body>
+</html> 

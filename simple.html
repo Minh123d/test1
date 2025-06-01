@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc Mừng Ngày 1/6 (Phiên bản đơn giản)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            color: #ffffff;
+            background-color: #000000;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content {
+            text-align: center;
+            padding: 2rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            max-width: 600px;
+            animation: fadeIn 2s ease, float 6s ease-in-out infinite;
+        }
+
+        .title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: #ff69b4;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.7);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .message {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .love {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ff69b4;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 5px rgba(255, 105, 180, 0.7); }
+            to { text-shadow: 0 0 20px rgba(255, 105, 180, 0.9), 0 0 30px rgba(255, 105, 180, 0.7); }
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .message {
+                font-size: 1.1rem;
+            }
+            
+            .love {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <h1 class="title">Chúc Mừng Ngày 1/6</h1>
+            <p class="message">Chúc người yêu của anh có một ngày Quốc tế Thiếu nhi thật vui vẻ và hạnh phúc!</p>
+            <p class="love">Yêu em thật nhiều ❤️</p>
+        </div>
+        <canvas id="bg"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script>
+        // Đợi cho Three.js tải xong
+        window.addEventListener('load', function() {
+            if (typeof THREE === 'undefined') {
+                alert('Không thể tải Three.js. Vui lòng kiểm tra kết nối internet.');
+                return;
+            }
+
+            // Thiết lập Three.js
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({
+                canvas: document.querySelector('#bg'),
+                antialias: true
+            });
+
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.position.setZ(30);
+            
+            // Ánh sáng
+            const pointLight = new THREE.PointLight(0xffffff, 1);
+            pointLight.position.set(5, 5, 5);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(pointLight, ambientLight);
+            
+            // Tạo các trái tim
+            function createHeart() {
+                // Tạo hình trái tim đơn giản hơn bằng các hạt
+                const heartParticles = new THREE.Group();
+                const heartShape = [];
+                
+                // Tạo hình dạng trái tim bằng các điểm
+                for (let i = 0; i < 50; i++) {
+                    // Tính toán tọa độ x, y theo phương trình tham số của hình trái tim
+                    const t = i / 50 * Math.PI * 2;
+                    // Công thức hình trái tim
+                    const x = 16 * Math.pow(Math.sin(t), 3);
+                    const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+                    // Scale xuống và đảo y (vì hệ tọa độ đi từ trên xuống dưới)
+                    heartShape.push(new THREE.Vector3(x * 0.05, -y * 0.05, 0));
+                }
+                
+                // Màu sắc ngẫu nhiên cho trái tim
+                const colors = [0xff69b4, 0xff1493, 0xffc0cb, 0xff77aa];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Tạo các hạt cho trái tim
+                heartShape.forEach(position => {
+                    const geometry = new THREE.SphereGeometry(0.15 + Math.random() * 0.1);
+                    const material = new THREE.MeshStandardMaterial({ 
+                        color: color, 
+                        emissive: color,
+                        emissiveIntensity: 0.3
+                    });
+                    const particle = new THREE.Mesh(geometry, material);
+                    
+                    // Đặt vị trí
+                    particle.position.copy(position);
+                    
+                    // Thêm vào nhóm
+                    heartParticles.add(particle);
+                });
+                
+                // Đặt vị trí ngẫu nhiên trong không gian
+                heartParticles.position.set(
+                    (Math.random() - 0.5) * 30,
+                    (Math.random() - 0.5) * 20,
+                    (Math.random() - 0.5) * 30 - 5
+                );
+                
+                // Thêm thuộc tính để xoay và di chuyển
+                heartParticles.userData = {
+                    rotationSpeed: Math.random() * 0.01 + 0.005,
+                    floatSpeed: Math.random() * 0.02 + 0.01,
+                    floatOffset: Math.random() * Math.PI * 2
+                };
+                
+                scene.add(heartParticles);
+                return heartParticles;
+            }
+            
+            // Tạo các ngôi sao
+            function addStar() {
+                const geometry = new THREE.SphereGeometry(0.25, 24, 24);
+                const materials = [
+                    new THREE.MeshBasicMaterial({ color: 0xffffff }),
+                    new THREE.MeshBasicMaterial({ color: 0xffc0cb }),
+                    new THREE.MeshBasicMaterial({ color: 0xff69b4 })
+                ];
+                const star = new THREE.Mesh(
+                    geometry, 
+                    materials[Math.floor(Math.random() * materials.length)]
+                );
+                
+                const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(100));
+                star.position.set(x, y, z);
+                star.userData = { 
+                    pulse: Math.random() * 0.05 + 0.01,
+                    pulseFactor: 0,
+                    originalScale: Math.random() * 0.5 + 0.5,
+                    // Thêm vận tốc di chuyển
+                    velocity: new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.05,
+                        (Math.random() - 0.5) * 0.05,
+                        (Math.random() - 0.5) * 0.05
+                    ),
+                    // Tạo vệt sáng cho một số sao
+                    trail: Math.random() > 0.8
+                };
+                
+                scene.add(star);
+                return star;
+            }
+            
+            // Tạo vệt sáng
+            const trails = [];
+            
+            function createTrail(position, color) {
+                const material = new THREE.LineBasicMaterial({
+                    color: color,
+                    opacity: 0.7,
+                    transparent: true
+                });
+                
+                // Tạo đường cho vệt sáng
+                const points = [
+                    position.clone(),
+                    position.clone().add(new THREE.Vector3(-0.5, -0.5, 0))
+                ];
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                
+                const line = new THREE.Line(geometry, material);
+                line.userData = {
+                    points: points,
+                    maxPoints: 20,
+                    life: 1.0,
+                    decay: 0.02
+                };
+                
+                scene.add(line);
+                trails.push(line);
+                return line;
+            }
+            
+            // Tạo các đối tượng
+            const hearts = [];
+            for (let i = 0; i < 10; i++) {
+                hearts.push(createHeart());
+            }
+            
+            const stars = Array(200).fill().map(addStar);
+            
+            // Tạo hạt lấp lánh
+            const particles = new THREE.BufferGeometry();
+            const particleCount = 1000;
+            const posArray = new Float32Array(particleCount * 3);
+            
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                posArray[i] = (Math.random() - 0.5) * 100;
+                posArray[i+1] = (Math.random() - 0.5) * 100;
+                posArray[i+2] = (Math.random() - 0.5) * 100;
+            }
+            
+            particles.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            
+            const particleMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.4,
+                transparent: true
+            });
+            
+            const particleSystem = new THREE.Points(particles, particleMaterial);
+            scene.add(particleSystem);
+            
+            // Theo dõi chuột
+            let mouseX = 0;
+            let mouseY = 0;
+            let targetX = 0;
+            let targetY = 0;
+            
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            });
+            
+            // Animation loop
+            let time = 0;
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                time += 0.01;
+                
+                // Di chuyển camera theo chuột
+                targetX = mouseX * 5;
+                targetY = mouseY * 5;
+                camera.position.x += (targetX - camera.position.x) * 0.05;
+                camera.position.y += (targetY - camera.position.y) * 0.05;
+                camera.lookAt(scene.position);
+                
+                // Hiệu ứng rung nhẹ camera
+                camera.position.x += Math.sin(time * 0.5) * 0.05;
+                camera.position.y += Math.cos(time * 0.5) * 0.05;
+                
+                // Xoay và di chuyển trái tim
+                hearts.forEach(heart => {
+                    heart.rotation.y += heart.userData.rotationSpeed;
+                    heart.rotation.z += heart.userData.rotationSpeed * 0.5;
+                    
+                    // Hiệu ứng nổi lên xuống
+                    heart.position.y += Math.sin(time + heart.userData.floatOffset) * heart.userData.floatSpeed;
+                });
+                
+                // Di chuyển và nhấp nháy ngôi sao
+                stars.forEach(star => {
+                    // Nhấp nháy
+                    star.userData.pulseFactor += star.userData.pulse;
+                    const scale = star.userData.originalScale + Math.sin(star.userData.pulseFactor) * 0.2;
+                    star.scale.set(scale, scale, scale);
+                    
+                    // Di chuyển
+                    star.position.add(star.userData.velocity);
+                    
+                    // Kiểm tra biên
+                    if (Math.abs(star.position.x) > 50 || 
+                        Math.abs(star.position.y) > 50 || 
+                        Math.abs(star.position.z) > 50) {
+                        // Đổi hướng
+                        star.userData.velocity.multiplyScalar(-1);
+                    }
+                    
+                    // Tạo vệt sáng cho một số ngôi sao
+                    if (star.userData.trail && Math.random() > 0.95) {
+                        createTrail(star.position, star.material.color);
+                    }
+                });
+                
+                // Cập nhật vệt sáng
+                for (let i = trails.length - 1; i >= 0; i--) {
+                    const trail = trails[i];
+                    trail.userData.life -= trail.userData.decay;
+                    
+                    // Giảm độ mờ dần
+                    trail.material.opacity = trail.userData.life * 0.7;
+                    
+                    if (trail.userData.life <= 0) {
+                        scene.remove(trail);
+                        trails.splice(i, 1);
+                    }
+                }
+                
+                // Xoay nhẹ các hạt
+                particleSystem.rotation.x += 0.0001;
+                particleSystem.rotation.y += 0.0002;
+                
+                renderer.render(scene, camera);
+            }
+            
+            // Xử lý resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            animate();
+        });
+    </script>
+</body>
+</html> 

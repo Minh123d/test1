@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc Mừng Ngày 1/6 - Enhanced Version</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- Các thư viện -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/TextPlugin.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #ff69b4;
+            --secondary-color: #8a2be2;
+            --text-color: #ffffff;
+            --bg-color: #000000;
+            --overlay-color: rgba(0, 0, 0, 0.4);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+        
+        /* Container cho Three.js */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        /* Container cho particles.js */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        /* Container cho chữ di chuyển trong 3D */
+        .moving-texts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 4;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .moving-text {
+            position: absolute;
+            font-family: 'Dancing Script', cursive;
+            color: var(--primary-color);
+            opacity: 0;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.7);
+            white-space: nowrap;
+            font-weight: bold;
+            will-change: transform;
+            pointer-events: none;
+        }
+
+        .moving-text.large {
+            font-size: 2.5rem;
+        }
+
+        .moving-text.medium {
+            font-size: 2rem;
+        }
+
+        .moving-text.small {
+            font-size: 1.5rem;
+        }
+        
+        .container {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .content {
+            text-align: center;
+            padding: 0;
+            max-width: 650px;
+        }
+        
+        .title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4.5rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.5);
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        
+        .message {
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            opacity: 0;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Hiệu ứng chữ di chuyển */
+        .animated-text {
+            font-size: 1.6rem;
+            margin: 1.5rem 0;
+            min-height: 2.5rem;
+            opacity: 0;
+            color: var(--primary-color);
+        }
+        
+        .love {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-top: 1.5rem;
+            opacity: 0;
+        }
+        
+        .heart-icon {
+            color: var(--primary-color);
+            margin: 0 0.5rem;
+            display: inline-block;
+        }
+        
+        .floating-hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .floating-hearts .heart {
+            position: absolute;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            opacity: 0.8;
+            will-change: transform;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            margin-top: 1.5rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.6);
+        }
+        
+        .music-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            opacity: 0;
+        }
+        
+        .music-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4);
+        }
+        
+        .music-btn i {
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        /* Ảnh di chuyển */
+        .moving-images {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            pointer-events: none;
+        }
+        
+        .moving-image {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            overflow: hidden;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 3.5rem;
+            }
+            
+            .message {
+                font-size: 1.4rem;
+            }
+            
+            .animated-text {
+                font-size: 1.3rem;
+            }
+            
+            .love {
+                font-size: 1.5rem;
+            }
+            
+            .content {
+                max-width: 90%;
+                padding: 2rem;
+            }
+            
+            .moving-image {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .moving-text.large {
+                font-size: 2rem;
+            }
+            
+            .moving-text.medium {
+                font-size: 1.6rem;
+            }
+            
+            .moving-text.small {
+                font-size: 1.3rem;
+            }
+            
+            .btn {
+                padding: 0.7rem 1.3rem;
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .title {
+                font-size: 2.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .message {
+                font-size: 1.1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .love {
+                font-size: 1.3rem;
+                margin-top: 1rem;
+            }
+            
+            .content {
+                padding: 1.5rem;
+                max-width: 95%;
+            }
+            
+            .moving-image {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .music-controls {
+                bottom: 15px;
+                right: 15px;
+            }
+            
+            .music-btn {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .moving-text.large {
+                font-size: 1.8rem;
+            }
+            
+            .moving-text.medium {
+                font-size: 1.4rem;
+            }
+            
+            .moving-text.small {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .moving-image {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .title {
+                font-size: 2.2rem;
+            }
+            
+            .content {
+                padding: 1.2rem;
+            }
+            
+            .btn {
+                padding: 0.5rem 1rem;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .title {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+            
+            .message {
+                font-size: 1rem;
+            }
+            
+            .love {
+                font-size: 1.1rem;
+            }
+            
+            .moving-image {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .content {
+                padding: 1rem;
+            }
+            
+            .moving-text.large {
+                font-size: 1.6rem;
+            }
+            
+            .moving-text.medium {
+                font-size: 1.2rem;
+            }
+            
+            .moving-text.small {
+                font-size: 1rem;
+            }
+            
+            .music-btn {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .music-btn i {
+                font-size: 1rem;
+            }
+        }
+        
+        /* Fix cho thiết bị có chiều cao nhỏ */
+        @media (max-height: 500px) {
+            .content {
+                max-height: 90vh;
+                overflow-y: auto;
+                padding: 1rem;
+            }
+            
+            .title {
+                font-size: 2rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            .message {
+                margin-bottom: 0.8rem;
+            }
+            
+            .love {
+                margin-top: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Three.js canvas -->
+    <canvas id="bg-canvas"></canvas>
+    
+    <!-- Particles.js container -->
+    <div id="particles-js"></div>
+    
+    <!-- Container cho chữ di chuyển trong 3D -->
+    <div class="moving-texts-container" id="moving-texts"></div>
+    
+    <!-- Container cho ảnh di chuyển -->
+    <div class="moving-images" id="moving-images"></div>
+    
+    <!-- Nội dung chính -->
+    <div class="container">
+        <div class="content">
+            <h1 class="title">Chúc Mừng Ngày 1/6</h1>
+            <p class="message">Chúc cậu có một ngày Quốc tế Thiếu nhi thật vui vẻ và hạnh phúc!</p>
+            
+            <p class="love">
+                Yêu cậu thật nhiều 
+                <i class="fas fa-heart heart-icon"></i>
+            </p>
+            <a href="#" class="btn surprise-btn">Nhấn để nhận điều bất ngờ</a>
+        </div>
+    </div>
+    
+    <!-- Điều khiển nhạc -->
+    <div class="music-controls">
+        <div class="music-btn" id="music-toggle">
+            <i class="fas fa-music"></i>
+        </div>
+    </div>
+    
+    <!-- Floating hearts container -->
+    <div class="floating-hearts" id="floating-hearts"></div>
+    
+    <!-- Audio -->
+    <audio id="background-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // Đợi cho trang tải xong
+        document.addEventListener('DOMContentLoaded', function() {
+            // Kiểm tra xem các thư viện đã tải xong chưa
+            if (typeof THREE === 'undefined' || typeof gsap === 'undefined' || typeof particlesJS === 'undefined') {
+                alert('Không thể tải các thư viện cần thiết. Vui lòng kiểm tra kết nối internet.');
+                return;
+            }
+            
+            // --- Danh sách ảnh ---
+            const imageList = [
+                'images/33a2993491b14401a5f062370d3424dd~tplv-photomode-image.jpeg',
+                'images/b8e77a9023f84462a4d150e8ee4c41e6~tplv-photomode-image.jpeg',
+                'images/485838095_18064183604507627_4908104190057835082_n.jpg',
+                'images/487210198_18064183622507627_2659823597904994389_n.jpg',
+                'images/DSC09261.jpg'
+            ];
+            
+            // --- Thiết lập Three.js ---
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({
+                canvas: document.getElementById('bg-canvas'),
+                antialias: true,
+                alpha: true
+            });
+            
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.position.setZ(30);
+            
+            // Ánh sáng
+            const pointLight = new THREE.PointLight(0xffffff, 1);
+            pointLight.position.set(5, 5, 5);
+            
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(pointLight, ambientLight);
+            
+            // Thêm Fog để tạo cảm giác chiều sâu
+            scene.fog = new THREE.FogExp2(0x000000, 0.02);
+            
+            // --- Các textureLoader để tải ảnh ---
+            const textureLoader = new THREE.TextureLoader();
+            
+            // --- Tạo các phần tử 3D ---
+            const textElements = [];
+            const imageElements = [];
+            const heartGeometry = createHeartShape();
+            
+            // --- Tạo hình dạng trái tim ---
+            function createHeartShape() {
+                const heartShape = new THREE.Shape();
+                
+                heartShape.moveTo(0, 0);
+                heartShape.bezierCurveTo(0, -3, -3, -3, -3, 0);
+                heartShape.bezierCurveTo(-3, 3, 0, 3, 0, 5);
+                heartShape.bezierCurveTo(0, 3, 3, 3, 3, 0);
+                heartShape.bezierCurveTo(3, -3, 0, -3, 0, 0);
+                
+                const extrudeSettings = {
+                    depth: 0.5,
+                    bevelEnabled: true,
+                    bevelSegments: 3,
+                    bevelSize: 0.3,
+                    bevelThickness: 0.3
+                };
+                
+                return new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+            }
+            
+            // --- Tạo chữ 3D ---
+            function createText3D(text, size = 1) {
+                // Tạo một sprite với text
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = 512;
+                canvas.height = 256;
+                
+                // Thiết lập font
+                const fontSize = Math.floor(100 * size);
+                context.font = `bold ${fontSize}px "Dancing Script", cursive`;
+                context.fillStyle = getRandomColor();
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                
+                // Vẽ text
+                context.fillText(text, canvas.width / 2, canvas.height / 2);
+                
+                // Tạo texture từ canvas
+                const texture = new THREE.CanvasTexture(canvas);
+                
+                // Tạo material từ texture
+                const material = new THREE.SpriteMaterial({ 
+                    map: texture,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                
+                // Tạo sprite
+                const sprite = new THREE.Sprite(material);
+                sprite.scale.set(10 * size, 5 * size, 1);
+                
+                // Vị trí ngẫu nhiên
+                const direction = Math.random() > 0.5 ? 1 : -1;
+                const z = -100 - Math.random() * 400;  // Đặt xa trong không gian sâu
+                const x = direction * (Math.random() * 30 + 20);  // 20-50 đơn vị từ giữa
+                const y = (Math.random() - 0.5) * 30;  // -15 đến 15
+                
+                sprite.position.set(x, y, z);
+                
+                // Thêm thông tin về tốc độ và hướng di chuyển
+                sprite.userData = {
+                    speed: Math.random() * 0.5 + 0.2,
+                    rotationSpeed: (Math.random() - 0.5) * 0.02,
+                    direction: new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.1,  // nhẹ sang trái/phải
+                        (Math.random() - 0.5) * 0.1,  // nhẹ lên/xuống
+                        1  // chủ yếu đi về phía trước (về phía camera)
+                    ).normalize()
+                };
+                
+                scene.add(sprite);
+                textElements.push(sprite);
+                
+                return sprite;
+            }
+            
+            // --- Tạo ảnh 3D ---
+            function createImage3D(imagePath) {
+                return new Promise((resolve, reject) => {
+                    // Tải texture từ ảnh
+                    textureLoader.load(
+                        imagePath,
+                        (texture) => {
+                            const aspectRatio = texture.image.width / texture.image.height;
+                            
+                            // Tạo plane geometry với tỷ lệ khung hình giống ảnh
+                            const geometry = new THREE.PlaneGeometry(aspectRatio * 5, 5);
+                            
+                            // Tạo material với texture
+                            const material = new THREE.MeshStandardMaterial({
+                                map: texture,
+                                transparent: true,
+                                opacity: 0.9,
+                                side: THREE.DoubleSide
+                            });
+                            
+                            // Tạo mesh
+                            const mesh = new THREE.Mesh(geometry, material);
+                            
+                            // Vị trí ngẫu nhiên
+                            const direction = Math.random() > 0.5 ? 1 : -1;
+                            const z = -100 - Math.random() * 400;  // Đặt xa trong không gian sâu
+                            const x = direction * (Math.random() * 30 + 20);  // 20-50 đơn vị từ giữa
+                            const y = (Math.random() - 0.5) * 30;  // -15 đến 15
+                            
+                            mesh.position.set(x, y, z);
+                            
+                            // Xoay nhẹ để tạo cảm giác tự nhiên
+                            mesh.rotation.x = (Math.random() - 0.5) * 0.5;
+                            mesh.rotation.y = (Math.random() - 0.5) * 0.5;
+                            mesh.rotation.z = (Math.random() - 0.5) * 0.2;
+                            
+                            // Thêm thông tin về tốc độ và hướng di chuyển
+                            mesh.userData = {
+                                speed: Math.random() * 0.5 + 0.2,
+                                rotationSpeed: {
+                                    x: (Math.random() - 0.5) * 0.01,
+                                    y: (Math.random() - 0.5) * 0.01,
+                                    z: (Math.random() - 0.5) * 0.01
+                                },
+                                direction: new THREE.Vector3(
+                                    (Math.random() - 0.5) * 0.1,  // nhẹ sang trái/phải
+                                    (Math.random() - 0.5) * 0.1,  // nhẹ lên/xuống
+                                    1  // chủ yếu đi về phía trước (về phía camera)
+                                ).normalize()
+                            };
+                            
+                            scene.add(mesh);
+                            imageElements.push(mesh);
+                            resolve(mesh);
+                        },
+                        undefined,
+                        (error) => {
+                            console.error('Không thể tải ảnh:', error);
+                            reject(error);
+                        }
+                    );
+                });
+            }
+            
+            // Tạo mảng chứa các chữ
+            const textMessages = [
+                "Cậu là điều tuyệt vời nhất...",
+                "Mãi yêu cậu thật nhiều ❤️",
+                "Cậu xinh đẹp nhất thế gian",
+                "Luôn hạnh phúc bên nhau nhé",
+                "Tình cảm của tớ dành cho cậu",
+                "Yêu cậu mỗi ngày",
+                "Ngày 1/6 vui vẻ",
+                "Cậu luôn xinh đẹp",
+                "Đáng yêu nhất thế gian",
+                "Yêu cậu vô điều kiện"
+            ];
+            
+            // --- Tạo các đối tượng ban đầu ---
+            function createInitialObjects() {
+                // Tạo các chữ 3D ban đầu
+                for (let i = 0; i < 10; i++) {
+                    const text = textMessages[Math.floor(Math.random() * textMessages.length)];
+                    const size = Math.random() * 0.5 + 0.7;  // 0.7-1.2
+                    setTimeout(() => {
+                        createText3D(text, size);
+                    }, i * 300);
+                }
+                
+                // Tạo các ảnh 3D ban đầu
+                imageList.forEach((image, index) => {
+                    setTimeout(() => {
+                        createImage3D(image);
+                    }, index * 500);
+                });
+            }
+            
+            // --- Định kỳ tạo thêm đối tượng mới ---
+            function setupObjectCreation() {
+                // Tạo chữ mới theo định kỳ
+                setInterval(() => {
+                    if (textElements.length < 20) {  // Giới hạn số lượng chữ
+                        const text = textMessages[Math.floor(Math.random() * textMessages.length)];
+                        const size = Math.random() * 0.5 + 0.7;
+                        createText3D(text, size);
+                    }
+                }, 3000);
+                
+                // Tạo ảnh mới theo định kỳ
+                setInterval(() => {
+                    if (imageElements.length < 10) {  // Giới hạn số lượng ảnh
+                        const image = imageList[Math.floor(Math.random() * imageList.length)];
+                        createImage3D(image);
+                    }
+                }, 5000);
+            }
+            
+            // --- Màu ngẫu nhiên ---
+            function getRandomColor() {
+                const colors = ['#ff69b4', '#ff1493', '#8a2be2', '#00bfff', '#ff77aa', '#ffc0cb'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            // --- Animation loop ---
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                const time = Date.now() * 0.001;
+                
+                // Cập nhật vị trí của các chữ 3D
+                textElements.forEach((text, index) => {
+                    // Di chuyển theo vector hướng đã xác định
+                    text.position.x += text.userData.direction.x * text.userData.speed;
+                    text.position.y += text.userData.direction.y * text.userData.speed;
+                    text.position.z += text.userData.direction.z * text.userData.speed;
+                    
+                    // Xoay nhẹ
+                    text.rotation.z += text.userData.rotationSpeed;
+                    
+                    // Nếu đã đi qua camera, đặt lại vị trí xa hơn
+                    if (text.position.z > 10) {
+                        scene.remove(text);
+                        textElements.splice(index, 1);
+                    }
+                });
+                
+                // Cập nhật vị trí của các ảnh 3D
+                imageElements.forEach((image, index) => {
+                    // Di chuyển theo vector hướng đã xác định
+                    image.position.x += image.userData.direction.x * image.userData.speed;
+                    image.position.y += image.userData.direction.y * image.userData.speed;
+                    image.position.z += image.userData.direction.z * image.userData.speed;
+                    
+                    // Xoay nhẹ
+                    image.rotation.x += image.userData.rotationSpeed.x;
+                    image.rotation.y += image.userData.rotationSpeed.y;
+                    image.rotation.z += image.userData.rotationSpeed.z;
+                    
+                    // Nếu đã đi qua camera, đặt lại vị trí xa hơn
+                    if (image.position.z > 10) {
+                        scene.remove(image);
+                        imageElements.splice(index, 1);
+                    }
+                });
+                
+                // Cập nhật đồ họa
+                renderer.render(scene, camera);
+            }
+            
+            // Xử lý resize
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            window.addEventListener('resize', onWindowResize);
+            
+            // --- Particles.js ---
+            function initParticlesJS() {
+                particlesJS('particles-js', {
+                    "particles": {
+                        "number": {
+                            "value": 50,
+                            "density": { "enable": true, "value_area": 800 }
+                        },
+                        "color": { "value": "#ffffff" },
+                        "shape": {
+                            "type": "circle",
+                            "stroke": { "width": 0, "color": "#000000" },
+                            "polygon": { "nb_sides": 5 },
+                        },
+                        "opacity": {
+                            "value": 0.3,
+                            "random": true,
+                            "anim": { "enable": true, "speed": 1, "opacity_min": 0.1, "sync": false }
+                        },
+                        "size": {
+                            "value": 3,
+                            "random": true,
+                            "anim": { "enable": true, "speed": 2, "size_min": 0.1, "sync": false }
+                        },
+                        "line_linked": {
+                            "enable": true,
+                            "distance": 150,
+                            "color": "#ffffff",
+                            "opacity": 0.2,
+                            "width": 1
+                        },
+                        "move": {
+                            "enable": true,
+                            "speed": 0.5,
+                            "direction": "none",
+                            "random": true,
+                            "straight": false,
+                            "out_mode": "out",
+                            "bounce": false,
+                            "attract": { "enable": false, "rotateX": 600, "rotateY": 1200 }
+                        }
+                    },
+                    "interactivity": {
+                        "detect_on": "canvas",
+                        "events": {
+                            "onhover": { "enable": true, "mode": "bubble" },
+                            "onclick": { "enable": true, "mode": "push" },
+                            "resize": true
+                        },
+                        "modes": {
+                            "bubble": {
+                                "distance": 200,
+                                "size": 4,
+                                "duration": 2,
+                                "opacity": 0.8,
+                                "speed": 3
+                            },
+                            "push": { "particles_nb": 4 },
+                        }
+                    },
+                    "retina_detect": true
+                });
+            }
+            
+            // --- GSAP Animations ---
+            function initGSAPAnimations() {
+                // Timeline chính
+                const mainTl = gsap.timeline({delay: 0.5});
+                
+                // Hiệu ứng xuất hiện cho content
+                mainTl.to('.content', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1.5,
+                    ease: 'power3.out'
+                });
+                
+                // Hiệu ứng xuất hiện cho từng phần tử
+                mainTl.to('.title', {
+                    opacity: 1,
+                    scale: 1,
+                    duration: 1,
+                    ease: 'back.out(1.7)'
+                }, '-=0.8');
+                
+                mainTl.to('.message', {
+                    opacity: 1,
+                    duration: 1,
+                    stagger: 0.2
+                }, '-=0.5');
+                
+                mainTl.to('.love', {
+                    opacity: 1,
+                    duration: 1
+                }, '-=0.6');
+                
+                mainTl.to('.btn', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: 'power1.out'
+                }, '-=0.4');
+                
+                mainTl.to('.music-controls', {
+                    opacity: 1,
+                    duration: 0.8
+                }, '-=0.2');
+                
+                // Hiệu ứng cho heart icon
+                gsap.to('.heart-icon', {
+                    scale: 1.2,
+                    duration: 0.8,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'power1.inOut'
+                });
+                
+                // Music button hover effect
+                document.querySelector('.music-btn').addEventListener('mouseenter', function() {
+                    gsap.to(this, {
+                        scale: 1.1,
+                        duration: 0.3,
+                        ease: 'power1.out'
+                    });
+                });
+                
+                document.querySelector('.music-btn').addEventListener('mouseleave', function() {
+                    gsap.to(this, {
+                        scale: 1,
+                        duration: 0.3,
+                        ease: 'power1.out'
+                    });
+                });
+            }
+            
+            // --- Music Control ---
+            function setupMusicControl() {
+                const music = document.getElementById('background-music');
+                const musicBtn = document.getElementById('music-toggle');
+                let isPlaying = false;
+                
+                musicBtn.addEventListener('click', function() {
+                    if (isPlaying) {
+                        music.pause();
+                        this.innerHTML = '<i class="fas fa-music"></i>';
+                    } else {
+                        music.play().catch(error => {
+                            console.log('Không thể phát nhạc tự động:', error);
+                        });
+                        this.innerHTML = '<i class="fas fa-pause"></i>';
+                    }
+                    isPlaying = !isPlaying;
+                });
+            }
+            
+            // --- Floating Hearts ---
+            function createFloatingHearts() {
+                const container = document.getElementById('floating-hearts');
+                const heartCount = 30;
+                
+                // Xóa các trái tim cũ nếu có
+                container.innerHTML = '';
+                
+                // Tạo hiệu ứng bắn pháo hoa trái tim
+                for (let i = 0; i < heartCount; i++) {
+                    const heart = document.createElement('div');
+                    heart.classList.add('heart');
+                    heart.innerHTML = '<i class="fas fa-heart"></i>';
+                    
+                    // Vị trí bắt đầu ở giữa dưới màn hình
+                    const startX = window.innerWidth / 2 + (Math.random() * 20 - 10);
+                    heart.style.left = startX + 'px';
+                    heart.style.top = (window.innerHeight + 20) + 'px'; // Bắt đầu từ dưới màn hình
+                    
+                    container.appendChild(heart);
+                    
+                    // Animation cho mỗi trái tim
+                    gsap.to(heart, {
+                        x: (Math.random() - 0.5) * window.innerWidth,
+                        y: -window.innerHeight * (Math.random() * 0.5 + 0.5), // Bay lên cao
+                        opacity: 0,
+                        scale: Math.random() * 2 + 0.5,
+                        duration: Math.random() * 3 + 2,
+                        ease: 'power1.out',
+                        rotation: (Math.random() - 0.5) * 360,
+                        onComplete: function() {
+                            heart.remove(); // Xóa trái tim sau khi animation kết thúc
+                        }
+                    });
+                }
+            }
+            
+            // Nút surprise
+            document.querySelector('.surprise-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                createFloatingHearts();
+            });
+            
+            // Khởi chạy
+            initParticlesJS();
+            initGSAPAnimations();
+            setupMusicControl();
+            
+            // Khởi tạo các đối tượng 3D
+            createInitialObjects();
+            setupObjectCreation();
+            
+            // Khởi chạy animation
+            animate();
+        });
+    </script>
+</body>
+</html> 
